@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>WhatsApp - Final</title>
+<meta name="theme-color" content="#111b21">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,Arial}
+body{background:#111b21;color:#e9edef;height:100vh;overflow:hidden}
+.screen{display:none;height:100vh;width:100%;position:fixed;top:0;left:0;background:#111b21;z-index:10;flex-direction:column}
+.screen.on{display:flex}
+.input{width:92%;margin:8px auto;padding:14px 16px;border-radius:10px;border:none;background:#202c34;color:white;font-size:15px;outline:none}
+.btn{width:92%;margin:12px auto;padding:15px;border-radius:28px;border:none;background:#25d366;color:#111b21;font-weight:800;font-size:16px;cursor:pointer}
+.tab{display:none;height:calc(100vh - 132px);overflow:auto;padding-bottom:10px}
+.tab.on{display:block}
+.row{display:flex;gap:12px;padding:13px 14px;align-items:center;border-bottom:0.5px solid #1e2a32;cursor:pointer}
+.row:active{background:#202c34}
+.av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.chip{padding:6px 12px;border-radius:20px;font-size:13px;background:#202c34;color:#8696a0;cursor:pointer}
+.chip.on{background:#0a332c;color:#25d366}
+.bottom{position:fixed;bottom:0;width:100%;background:#111b21;border-top:0.5px solid #202c34;display:flex;justify-content:space-around;padding:8px 0 10px 0;z-index:9999}
+.bBtn{flex:1;text-align:center;padding:6px 2px;cursor:pointer}
+.dot{background:#25d366;color:#111b21;font-size:11px;font-weight:800;padding:3px 7px;border-radius:12px}
+.bubble-left{background:#1f2c34;padding:8px 10px;border-radius:0 10px 10px 10px;max-width:76%;margin:6px 10px;font-size:14px}
+.bubble-right{background:#005c4b;padding:8px 10px;border-radius:10px 0 10px 10px;max-width:76%;margin:6px 10px 6px auto;font-size:14px}
+.sheet{position:fixed;bottom:0;left:0;width:100%;background:#1f2c34;border-radius:16px 16px 0 0;padding:16px;z-index:10002;display:none;flex-direction:column;max-height:80vh;overflow:auto}
+.sheet.on{display:flex}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10001;display:none}
+.overlay.on{display:block}
+</style>
+</head>
+<body>
+
+<div id="s-welcome" class="screen on" style="justify-content:center;align-items:center;text-align:center;padding:20px">
+<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" style="width:90px">
+<h1 style="margin-top:16px">Welcome to WhatsApp</h1>
+<p style="color:#8696a0;font-size:12px;margin-top:8px">Create account to get full WhatsApp</p>
+<button class="btn" onclick="showScreen('s-phone')" style="margin-top:20px">Agree and Continue</button>
+</div>
+
+<div id="s-phone" class="screen" style="padding:20px">
+<div style="display:flex;gap:10px;margin-top:10px"><span onclick="showScreen('s-welcome')" style="font-size:22px;cursor:pointer">←</span><b>Phone</b></div>
+<h2 style="margin-top:24px">Enter phone number</h2>
+<div style="display:flex;gap:8px;margin-top:16px;width:92%;margin:auto">
+<select style="background:#202c34;color:white;padding:14px;border-radius:10px;border:none"><option>GH +233</option></select>
+<input id="phoneInput" placeholder="24 123 4567" class="input" style="margin:0;flex:1" type="tel">
+</div>
+<button class="btn" onclick="showScreen('s-otp');document.getElementById('otpPhone').innerText=document.getElementById('phoneInput').value" style="margin-top:16px">Next</button>
+</div>
+
+<div id="s-otp" class="screen" style="padding:20px">
+<div style="display:flex;gap:10px;margin-top:10px"><span onclick="showScreen('s-phone')" style="font-size:22px;cursor:pointer">←</span><b>Verify</b></div>
+<p style="margin-top:20px;color:#8696a0;font-size:13px">Code to <b id="otpPhone"></b> - Demo: <b style="color:#25d366">123456</b></p>
+<input id="otpInput" placeholder="123456" class="input" style="margin-top:16px;text-align:center;letter-spacing:8px;font-size:20px" maxlength="6">
+<button class="btn" onclick="showScreen('s-profile')">Verify</button>
+</div>
+
+<div id="s-profile" class="screen" style="padding:20px;overflow:auto">
+<div style="display:flex;gap:10px;margin-top:10px"><span onclick="showScreen('s-otp')" style="font-size:22px;cursor:pointer">←</span><b>Profile</b></div>
+<div style="text-align:center;margin-top:16px">
+<img id="profilePreview" src="https://i.pravatar.cc/150?img=15" style="width:100px;height:100px;border-radius:50%;border:3px solid #25d366">
+<input type="file" id="photoFile" accept="image/*" style="display:none" onchange="previewPhoto(event)">
+<div style="margin-top:8px"><button onclick="document.getElementById('photoFile').click()" style="background:#202c34;color:#25d366;border:none;padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer">Add photo</button></div>
+</div>
+<input id="nameInput" placeholder="Your name (Yunlee)" class="input" style="margin-top:16px">
+<input id="aboutInput" placeholder="About" class="input" value="Hey there! I am using WhatsApp">
+<button class="btn" onclick="finishAccount()">Create Account</button>
+</div>
+
+<div id="s-main" class="screen" style="background:#080a0c">
+<div style="padding:10px 14px 0 14px;background:#111b21;position:sticky;top:0;z-index:5">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span style="font-size:11px;color:#25d366" id="accountBadge">● Yunlee</span>
+<div style="display:flex;gap:12px;align-items:center">
+<span onclick="openViewer('Camera')" style="cursor:pointer">📷</span>
+<span onclick="focusSearch()" style="cursor:pointer">🔍</span>
+<span onclick="openSheet('moreMenu')" style="cursor:pointer">⋮</span>
+<span onclick="openSheet('plusMenu')" style="background:#25d366;color:#000;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;cursor:pointer">+</span>
+</div>
+</div>
+<h1 id="title" style="font-size:26px;font-weight:800;margin-top:8px">Chats</h1>
+<div id="searchBox" style="background:#202c34;border-radius:18px;padding:7px 12px;margin-top:8px;display:flex;gap:8px;align-items:center">
+<span>🔍</span>
+<input id="searchInput" placeholder="Ask Meta AI or Search" style="flex:1;background:transparent;border:none;color:white;outline:none;font-size:13px" oninput="doSearch(this.value)">
+<span id="clearSearch" onclick="clearSearch()" style="display:none;cursor:pointer;color:#8696a0">✕</span>
+</div>
+<div id="chips" style="display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:6px">
+<span class="chip on" onclick="filterChats('all', this)">All</span>
+<span class="chip" onclick="filterChats('unread', this)">Unread</span>
+<span class="chip" onclick="filterChats('favorites', this)">Favorites</span>
+<span class="chip" onclick="filterChats('groups', this)">Groups</span>
+</div>
+</div>
+
+<div id="tab-chats" class="tab on">
+<div class="row" onclick="openArchived()" style="justify-content:space-between;background:#1a2a33"><div style="display:flex;gap:12px;align-items:center"><span>📦</span><b>Archived</b></div><span style="color:#25d366">4 chats</span></div>
+
+<div class="row" data-type="unread" onclick="openChat('Nana Afia','26')"><img class="av" src="https://i.pravatar.cc/150?img=26"><div style="flex:1"><div style="display:flex;justify-content:space-between"><b>Nana Afia</b><span style="font-size:11px;color:#8696a0">21:53</span></div><span style="font-size:13px;color:#8696a0">See you at lectures tomorrow? We can work on it</span></div><span class="dot">2</span></div>
+
+<div class="row" data-type="unread" onclick="openChat('Emma Wilson','5')"><img class="av" src="https://i.pravatar.cc/150?img=5"><div style="flex:1"><div style="display:flex;justify-content:space-between"><b>Emma Wilson</b><span style="font-size:11px;color:#25d366" id="time-Emma Wilson">21:40</span></div><span style="font-size:13px;color:#8696a0">Are you free tomorrow? Need help</span></div><span class="dot">3</span></div>
+
+<div class="row" data-type="groups" onclick="openChat('CS 300 Team','3')"><img class="av" src="https://i.pravatar.cc/150?img=3"><div style="flex:1"><b>CS 300 Project Team</b><br><span style="font-size:13px;color:#8696a0">You: Great, working on UI</span></div><span class="dot">45</span></div>
+
+<div class="row" data-type="favorites" onclick="openChat('Dr. Mensah','12')"><img class="av" src="https://i.pravatar.cc/150?img=12"><div style="flex:1"><b>Dr. Mensah ⭐</b><br><span style="font-size:13px;color:#8696a0">You: Noted sir, thank you</span></div></div>
+
+<div class="row" data-type="all" onclick="openChat('Ama Serwaa','32')"><img class="av" src="https://i.pravatar.cc/150?img=32"><div style="flex:1"><b>Ama Serwaa</b><br><span style="font-size:13px;color:#8696a0">Okay see you at lab</span></div></div>
+
+<div class="row" data-type="all" onclick="openChat('Kofi Tech Hub','15')"><img class="av" src="https://i.pravatar.cc/150?img=15"><div style="flex:1"><b>Kofi Tech Hub</b><br><span style="font-size:13px;color:#8696a0">Laptops 20% off - Limited</span></div><span class="dot">99+</span></div>
+
+<div class="row" data-type="groups" onclick="openChat('Design Hub','18')"><img class="av" src="https://i.pravatar.cc/150?img=18"><div style="flex:1"><b>Design Hub GH</b><br><span style="font-size:13px;color:#8696a0">You: Nice templates!</span></div></div>
+
+<div class="row" data-type="all" onclick="openChat('Sister Esi','9')"><img class="av" src="https://i.pravatar.cc/150?img=9"><div style="flex:1"><b>Sister Esi</b><br><span style="font-size:13px;color:#8696a0">Okay I will call her tonight</span></div></div>
+
+<div class="row" data-type="groups" onclick="openChat('UCC SRC','22')"><img class="av" src="https://i.pravatar.cc/150?img=22"><div style="flex:1"><b>UCC SRC Info 🇬🇭</b><br><span style="font-size:13px;color:#8696a0">SRC Week Day 3 program at 2pm</span></div></div>
+
+<div class="row" data-type="favorites" onclick="openChat('Joel','33')"><img class="av" src="https://i.pravatar.cc/150?img=33"><div style="flex:1"><b>Joel - Roommate ⭐</b><br><span style="font-size:13px;color:#8696a0">You: Bring my charger abeg</span></div></div>
+
+<div class="row" data-type="all" onclick="openChat('Adjoa Mensah','29')"><img class="av" src="https://i.pravatar.cc/150?img=29"><div style="flex:1"><b>Adjoa Mensah</b><br><span style="font-size:13px;color:#8696a0">Thanks for the notes! 🙏</span></div></div>
+
+<div class="row" data-type="all" onclick="openChat('Kwame Asare','45')"><img class="av" src="https://i.pravatar.cc/150?img=45"><div style="flex:1"><b>Kwame Asare</b><br><span style="font-size:13px;color:#8696a0">Bro the game tonight 8pm?</span></div></div>
+
+<div class="row" data-type="groups" onclick="openChat('Internship Group','11')"><img class="av" src="https://i.pravatar.cc/150?img=11"><div style="flex:1"><b>Internship Group 2026</b><br><span style="font-size:13px;color:#8696a0">You: Noted, will be there</span></div><span class="dot">12</span></div>
+
+<div class="row" data-type="all" onclick="openChat('Maame Esi','38')"><img class="av" src="https://i.pravatar.cc/150?img=38"><div style="flex:1"><b>Maame Esi - Cousin</b><br><span style="font-size:13px;color:#8696a0">Happy birthday! Thank you cuz</span></div></div>
+
+</div>
+
+<div id="tab-updates" class="tab">
+<div style="padding:12px">
+<h3>Status</h3>
+<div style="display:flex;gap:12px;overflow-x:auto;margin-top:10px;padding-bottom:8px">
+<div onclick="openStatus('Emma', '5')" style="text-align:center;cursor:pointer"><img src="https://i.pravatar.cc/100?img=5" style="width:56px;height:56px;border-radius:50%;border:3px solid #25d366"><div style="font-size:11px">Emma</div></div>
+<div onclick="openStatus('Kofi', '15')" style="text-align:center;cursor:pointer"><img src="https://i.pravatar.cc/100?img=15" style="width:56px;height:56px;border-radius:50%;border:3px solid #25d366"><div style="font-size:11px">Kofi</div></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:16px"><h3>Channels</h3><span style="color:#25d366;font-size:13px">Explore ›</span></div>
+<div class="row" onclick="openChannel('Tech Tips GH', '50', true)" style="background:#1a2a33;border-radius:10px;margin-top:8px"><img class="av" src="https://i.pravatar.cc/100?img=50"><div style="flex:1"><b>Tech Tips GH</b><br><span style="font-size:12px;color:#8696a0">FIFO queue explained</span></div></div>
+</div>
+</div>
+
+<div id="tab-calls" class="tab">
+<div style="padding:12px">
+<div style="display:flex;gap:16px;border-bottom:0.5px solid #1e2a32;padding-bottom:10px">
+<span style="color:#25d366;font-weight:700;border-bottom:2px solid #25d366;padding-bottom:6px">Call</span>
+<span style="color:#8696a0">Keypad</span>
+</div>
+<div class="row" onclick="makeCall('Emma Wilson','5',false)"><img class="av" src="https://i.pravatar.cc/100?img=5"><div style="flex:1"><b>Emma Wilson</b><br><span style="font-size:12px;color:#f15c6d">↙ Missed • Yesterday</span></div><span style="background:#1e2a32;padding:8px;border-radius:50%">📞</span></div>
+<div class="row" onclick="makeCall('Nana Afia','26',true)"><img class="av" src="https://i.pravatar.cc/150?img=26"><div style="flex:1"><b>Nana Afia</b><br><span style="font-size:12px;color:#f15c6d">↙ Missed Video</span></div><span style="background:#1e2a32;padding:8px;border-radius:50%">📹</span></div>
+</div>
+</div>
+
+<div id="tab-communities" class="tab">
+<div style="padding:12px">
+<h3>Communities</h3>
+<div style="margin-top:12px"><b>CS 300 - Cape Coast</b></div>
+<div class="row" style="background:#1a2a33;border-radius:10px;margin-top:6px"><span style="background:#25d366;padding:8px;border-radius:50%">📢</span><div style="flex:1"><b>Announcements</b><br><span style="font-size:12px;color:#8696a0">Queue implementation due</span></div></div>
+</div>
+</div>
+
+<div id="tab-you" class="tab">
+<div style="padding:14px;display:flex;gap:12px;background:#1e2a32;align-items:center">
+<img id="myAv" src="https://i.pravatar.cc/100?img=15" style="width:62px;height:62px;border-radius:50%">
+<div style="flex:1"><b id="myName">Yunlee</b><br><span id="myPhone" style="font-size:12px;color:#8696a0">@yunlee975</span></div>
+</div>
+<div style="margin-top:8px;background:#080a0c">
+<div class="row" onclick="openSheet('account')"><span>🔑</span><span>Account - Queue: <b id="qCount" style="color:#25d366">0</b></span><span style="margin-left:auto">›</span></div>
+</div>
+<div style="padding:12px;text-align:center">
+<div onclick="logout()" style="color:#f15c6d;font-size:13px;cursor:pointer;padding:12px;background:#1a2a33;border-radius:10px;font-weight:700">🚪 Log out</div>
+</div>
+</div>
+
+<div id="queue" style="position:fixed;bottom:74px;left:8px;right:8px;background:#1a2a33;border:1px solid #25d366;padding:6px;border-radius:8px;font-size:10px;color:#25d366;text-align:center;z-index:9998;pointer-events:none">Queue: [] | FIFO</div>
+
+<div class="bottom">
+<div id="b-updates" class="bBtn" onclick="switchTab('updates')"><div style="font-size:18px">🔄</div><div style="font-size:10px">Updates</div></div>
+<div id="b-calls" class="bBtn" onclick="switchTab('calls')"><div style="font-size:18px">📞</div><div style="font-size:10px">Calls</div></div>
+<div id="b-communities" class="bBtn" onclick="switchTab('communities')"><div style="font-size:18px">👥</div><div style="font-size:10px">Communities</div></div>
+<div id="b-chats" class="bBtn" onclick="switchTab('chats')" style="color:white"><div style="font-size:18px">💬</div><div style="font-size:10px">Chats</div></div>
+<div id="b-you" class="bBtn" onclick="switchTab('you')"><div style="font-size:18px">👤</div><div style="font-size:10px">You</div></div>
+</div>
+
+<div id="chatOpen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:10000;flex-direction:column">
+<div style="background:#1f2c34;padding:8px 10px;display:flex;align-items:center;gap:8px">
+<span onclick="document.getElementById('chatOpen').style.display='none'" style="font-size:24px;cursor:pointer;padding:4px">‹</span>
+<img id="coAv" src="" style="width:34px;height:34px;border-radius:50%;margin-left:4px">
+<div style="flex:1"><b id="coName" style="font-size:14px"></b><br><span style="font-size:11px;color:#8696a0">tap here for contact info</span></div>
+<span onclick="makeCallFromChat(true)" style="background:#2a3942;padding:6px 10px;border-radius:20px;cursor:pointer">📹</span>
+<span onclick="makeCallFromChat(false)" style="background:#2a3942;padding:6px 10px;border-radius:20px;cursor:pointer">📞</span>
+</div>
+<div id="coBody" style="flex:1;overflow:auto;padding:10px 0;display:flex;flex-direction:column;background:#0b141a"></div>
+<div style="background:#1f2c34;padding:6px 8px;display:flex;gap:6px;align-items:center">
+<span onclick="openSheet('attachMenu')" style="font-size:22px;cursor:pointer;padding:4px">+</span>
+<div style="flex:1;background:#2a3942;border-radius:20px;padding:8px 12px;display:flex;align-items:center">
+<input id="coInput" placeholder="Type a message" style="flex:1;background:transparent;border:none;color:white;outline:none;font-size:14px" onkeypress="if(event.key==='Enter') sendMessage()">
+</div>
+<span style="background:#00a884;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="sendMessage()">➤</span>
+</div>
+</div>
+
+<div id="callScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0b141a;z-index:10001;flex-direction:column;justify-content:space-between;padding:20px">
+<div style="text-align:center;margin-top:50px">
+<img id="callAv" src="" style="width:120px;height:120px;border-radius:50%;margin:0 auto;display:block;border:3px solid #25d366">
+<h2 id="callName" style="margin-top:16px"></h2>
+<p id="callStatus" style="color:#8696a0;margin-top:6px">Connecting...</p>
+<p id="callTimer" style="font-size:32px;margin-top:16px">00:00</p>
+</div>
+<div style="display:flex;justify-content:space-around;padding-bottom:30px">
+<div onclick="endCall()"><div style="background:#f15c6d;width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px">📞</div><div style="font-size:10px;margin-top:4px;color:#8696a0">End</div></div>
+</div>
+</div>
+
+<div id="viewer" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#111b21;z-index:9997;flex-direction:column"><div style="padding:12px;background:#1e2a32;display:flex;gap:10px;align-items:center"><span onclick="document.getElementById('viewer').style.display='none'" style="font-size:22px;cursor:pointer">←</span><b id="vTitle"></b></div><div id="vBody" style="flex:1;padding:16px;overflow:auto"></div></div>
+
+<div id="archivedScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#111b21;z-index:9996;flex-direction:column">
+<div style="padding:12px;background:#1e2a32;display:flex;gap:10px;align-items:center"><span onclick="document.getElementById('archivedScreen').style.display='none'" style="font-size:22px;cursor:pointer">←</span><b>Archived - 4 chats</b><span style="margin-left:auto;color:#25d366;font-size:12px" onclick="unarchiveAll()">Unarchive all</span></div>
+<div style="flex:1;overflow:auto">
+<div class="row" onclick="openChat('Old Project 2023','31')"><img class="av" src="https://i.pravatar.cc/150?img=31"><div style="flex:1"><b>Old Project 2023</b><br><span style="font-size:13px;color:#8696a0">Project completed last year</span></div></div>
+<div class="row" onclick="openChat('Auntie Mary','62')"><img class="av" src="https://i.pravatar.cc/150?img=62"><div style="flex:1"><b>Auntie Mary</b><br><span style="font-size:13px;color:#8696a0">Merry Christmas! 🎄</span></div></div>
+<div class="row" onclick="openChat('Spam Group','70')"><img class="av" src="https://i.pravatar.cc/150?img=70"><div style="flex:1"><b>Spam Group (Archived)</b><br><span style="font-size:13px;color:#8696a0">You left this group</span></div></div>
+<div class="row" onclick="openChat('Ex Classmate','44')"><img class="av" src="https://i.pravatar.cc/150?img=44"><div style="flex:1"><b>Ex Classmate - SHS</b><br><span style="font-size:13px;color:#8696a0">Long time! How are you?</span></div></div>
+</div>
+</div>
+
+<div id="statusViewer" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:10002;flex-direction:column">
+<div style="padding:10px;display:flex;gap:2px" id="statusProgress"></div>
+<div style="padding:10px;display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:8px;align-items:center"><img id="statusAv" src="" style="width:36px;height:36px;border-radius:50%"><b id="statusName"></b></div><span onclick="document.getElementById('statusViewer').style.display='none'" style="font-size:20px;cursor:pointer">✕</span></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column"><img id="statusImg" src="" style="width:100%;max-width:400px;max-height:60vh;object-fit:contain"><p id="statusText" style="margin-top:12px;text-align:center;padding:0 20px"></p></div>
+</div>
+
+<div id="overlay" class="overlay" onclick="closeSheets()"></div>
+
+<div id="plusMenu" class="sheet">
+<div style="display:flex;justify-content:space-between"><b>New</b><span onclick="closeSheets()" style="cursor:pointer">✕</span></div>
+<div class="row" onclick="createNew('Group');closeSheets()"><span style="background:#25d366;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center">👥</span><div><b>New Group</b></div></div>
+<div class="row" onclick="createNew('Contact');closeSheets()"><span style="background:#00a8ff;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center">👤</span><div><b>New Contact</b></div></div>
+</div>
+
+<div id="moreMenu" class="sheet">
+<div style="display:flex;justify-content:space-between"><b>More</b><span onclick="closeSheets()" style="cursor:pointer">✕</span></div>
+<div class="row" onclick="openViewer('New group')"><span>👥</span><span>New group</span></div>
+<div class="row" onclick="openViewer('Linked devices')"><span>💻</span><span>Linked devices</span></div>
+</div>
+
+<div id="account" class="sheet">
+<div style="display:flex;justify-content:space-between"><b>Account</b><span onclick="closeSheets()" style="cursor:pointer">✕</span></div>
+<div class="row" onclick="logout()"><span style="color:#f15c6d">🚪 Delete account</span></div>
+</div>
+
+<div id="attachMenu" class="sheet">
+<div style="display:flex;justify-content:space-between"><b>Attach</b><span onclick="closeSheets()" style="cursor:pointer">✕</span></div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px">
+<div onclick="openViewer('Document');closeSheets()" style="text-align:center;cursor:pointer"><div style="background:#5f66cd;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto">📄</div><div style="font-size:11px;margin-top:4px">Document</div></div>
+<div onclick="openViewer('Camera');closeSheets()" style="text-align:center;cursor:pointer"><div style="background:#007bfc;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto">📷</div><div style="font-size:11px;margin-top:4px">Camera</div></div>
+<div onclick="openViewer('Gallery');closeSheets()" style="text-align:center;cursor:pointer"><div style="background:#9b59b6;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto">🖼️</div><div style="font-size:11px;margin-top:4px">Gallery</div></div>
+<div onclick="openViewer('Audio');closeSheets()" style="text-align:center;cursor:pointer"><div style="background:#ff7f50;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto">🎵</div><div style="font-size:11px;margin-top:4px">Audio</div></div>
+</div>
+</div>
+
+</div>
+
+<script>
+let q=[]; let currentName=''; let currentImg=''; let callInterval=null; let callSec=0; let user=JSON.parse(localStorage.getItem('wa_user')||'null');
+
+if(user){ showScreen('s-main'); applyUser(user); }
+
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); document.getElementById(id).classList.add('on'); }
+function applyUser(u){ document.getElementById('myName').innerText=u.name; document.getElementById('myPhone').innerText=u.phone; if(u.photo){ document.getElementById('myAv').src=u.photo; document.getElementById('profilePreview').src=u.photo; } document.getElementById('accountBadge').innerText='● '+u.name; }
+function previewPhoto(e){ let f=e.target.files[0]; if(!f) return; let r=new FileReader(); r.onload=()=>{document.getElementById('profilePreview').src=r.result;}; r.readAsDataURL(f); }
+function finishAccount(){ let name=document.getElementById('nameInput').value.trim(); if(name.length<2){alert('Enter name'); return;} let phone=document.getElementById('phoneInput').value||'244000000'; let photo=document.getElementById('profilePreview').src; let about=document.getElementById('aboutInput').value; let data={name, phone:'+233 '+phone, photo, about, created:Date.now()}; localStorage.setItem('wa_user', JSON.stringify(data)); user=data; applyUser(data); showScreen('s-main'); }
+function logout(){ if(confirm('Delete account?')){ localStorage.removeItem('wa_user'); location.reload(); } }
+
+function switchTab(t){
+document.querySelectorAll('.tab').forEach(e=>e.classList.remove('on'));
+document.getElementById('tab-'+t).classList.add('on');
+document.getElementById('title').innerText=t==='you' ? (user?user.name:'You') : t.charAt(0).toUpperCase()+t.slice(1);
+document.getElementById('searchBox').style.display=(t==='chats'||t==='updates')?'flex':'none';
+document.getElementById('chips').style.display=t==='chats'?'flex':'none';
+['chats','updates','calls','communities','you'].forEach(x=>{ let el=document.getElementById('b-'+x); if(el) el.style.color='#8696a0'; });
+let cur=document.getElementById('b-'+t); if(cur) cur.style.color='white';
+q.push(t); upd(); setTimeout(()=>{q.shift(); upd();},500);
+}
+
+function filterChats(type, el){
+document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+el.classList.add('on');
+let rows=document.querySelectorAll('#tab-chats .row[data-type]');
+rows.forEach(r=>{
+if(type==='all'){ r.style.display='flex'; }
+else{ if(r.getAttribute('data-type').includes(type)) r.style.display='flex'; else r.style.display='none'; }
+});
+}
+
+function focusSearch(){ document.getElementById('searchInput').focus(); }
+function doSearch(term){
+let clearBtn=document.getElementById('clearSearch');
+clearBtn.style.display=term.length>0 ? 'block' : 'none';
+let rows=document.querySelectorAll('#tab-chats .row[data-type]');
+rows.forEach(r=>{ r.style.display=r.innerText.toLowerCase().includes(term.toLowerCase()) ? 'flex' : 'none'; });
+}
+function clearSearch(){ document.getElementById('searchInput').value=''; document.getElementById('clearSearch').style.display='none'; document.querySelectorAll('#tab-chats .row[data-type]').forEach(r=>r.style.display='flex'); }
+
+// NICE CONVERSATIONS - PREVIEW = LAST MESSAGE
+const chatData = {
+'Nana Afia': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div style="text-align:center;color:#8696a0;font-size:11px;margin:10px">Today</div>
+  <div class="bubble-left">Hey Yunlee, how was lectures? 😊<br><span style="font-size:10px;color:#8696a0">09:15 ✓✓</span></div>
+  <div class="bubble-right">It was stressful oo, assignment plenty<br><span style="font-size:10px">09:16 ✓✓</span></div>
+  <div class="bubble-left">Which one? The queue?<br><span style="font-size:10px;color:#8696a0">09:17 ✓✓</span></div>
+  <div class="bubble-right">Yes, FIFO implementation<br><span style="font-size:10px">09:18 ✓✓</span></div>
+  <div class="bubble-left">See you at lectures tomorrow? We can work on it<br><span style="font-size:10px;color:#8696a0">21:53 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Emma Wilson': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div style="text-align:center;color:#8696a0;font-size:11px;margin:10px">Yesterday</div>
+  <div class="bubble-left">Yunlee are you free tomorrow? Need help with DS 😅<br><span style="font-size:10px;color:#8696a0">19:30 ✓✓</span></div>
+  <div class="bubble-right">Yes, after lectures at 2pm<br><span style="font-size:10px">19:32 ✓✓</span></div>
+  <div class="bubble-left">I don't understand enqueue and dequeue<br><span style="font-size:10px;color:#8696a0">19:33 ✓✓</span></div>
+  <div class="bubble-right">I will explain with example<br><span style="font-size:10px">19:35 ✓✓</span></div>
+  <div class="bubble-left">Are you free tomorrow? Need help<br><span style="font-size:10px;color:#8696a0">21:40 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'CS 300 Team': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left"><b style="color:#53bdeb">Kofi:</b> I pushed code to GitHub, queue done<br><span style="font-size:10px;color:#8696a0">19:00 ✓✓</span></div>
+  <div class="bubble-left"><b style="color:#e879f9">Ama:</b> Nice, I will review tomorrow<br><span style="font-size:10px;color:#8696a0">19:10 ✓✓</span></div>
+  <div class="bubble-right">Great, working on UI - You: Great, working on UI<br><span style="font-size:10px">19:15 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Dr. Mensah': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left"><b>Dr. Mensah:</b> Class test tomorrow 9am. Queue FIFO, Stack LIFO<br><span style="font-size:10px;color:#8696a0">18:00 ✓✓</span></div>
+  <div class="bubble-right">Noted sir, thank you - You: Noted sir, thank you<br><span style="font-size:10px">18:05 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Ama Serwaa': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">Are we meeting at lab today?<br><span style="font-size:10px;color:#8696a0">15:00 ✓✓</span></div>
+  <div class="bubble-right">Yes, 3pm at CS lab<br><span style="font-size:10px">15:10 ✓✓</span></div>
+  <div class="bubble-left">Okay see you at lab<br><span style="font-size:10px;color:#8696a0">15:12 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Kofi Tech Hub': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">New laptops in stock! Dell, HP, Lenovo - 20% off this week only<br><span style="font-size:10px;color:#8696a0">10:00 ✓✓</span></div>
+  <div class="bubble-left">Laptops 20% off - Limited<br><span style="font-size:10px;color:#8696a0">10:01 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Design Hub': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">Figma templates shared for project<br><span style="font-size:10px;color:#8696a0">14:00 ✓✓</span></div>
+  <div class="bubble-right">Nice templates! - You: Nice templates!<br><span style="font-size:10px">14:05 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Sister Esi': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">Yunlee, mum said call her tonight, its important<br><span style="font-size:10px;color:#8696a0">20:00 ✓✓</span></div>
+  <div class="bubble-right">Okay I will call her tonight<br><span style="font-size:10px">20:05 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'UCC SRC': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">SRC Week Day 3 program at 2pm at auditorium<br><span style="font-size:10px;color:#8696a0">08:00 ✓✓</span></div>
+  <div class="bubble-left">SRC Week Day 3 program at 2pm<br><span style="font-size:10px;color:#8696a0">08:01 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Joel': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">Abeg bring my charger when coming, I forgot<br><span style="font-size:10px;color:#8696a0">18:30 ✓✓</span></div>
+  <div class="bubble-right">Bring my charger abeg - You: Bring my charger abeg<br><span style="font-size:10px">18:35 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Adjoa Mensah': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">Thanks for the notes! You really helped me 🙏<br><span style="font-size:10px;color:#8696a0">16:00 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Kwame Asare': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">Bro the game tonight 8pm? Man U vs Arsenal<br><span style="font-size:10px;color:#8696a0">12:00 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Internship Group': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">Interview tomorrow 2pm, come with CV<br><span style="font-size:10px;color:#8696a0">09:00 ✓✓</span></div>
+  <div class="bubble-right">Noted, will be there - You: Noted, will be there<br><span style="font-size:10px">09:05 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Maame Esi': `
+<div style="display:flex;flex-direction:column;gap:2px;padding:10px 0">
+  <div class="bubble-left">Happy birthday! 🎉 Hope your day is amazing<br><span style="font-size:10px;color:#8696a0">07:00 ✓✓</span></div>
+  <div class="bubble-right">Thank you cuz - Happy birthday! Thank you cuz<br><span style="font-size:10px">07:05 ✓✓</span></div>
+  <div id="newMsgs" style="display:flex;flex-direction:column"></div>
+</div>`,
+'Old Project 2023': `<div style="display:flex;flex-direction:column;padding:10px 0"><div class="bubble-left">Project completed last year<br><span style="font-size:10px;color:#8696a0">12/12/23 ✓✓</span></div><div id="newMsgs" style="display:flex;flex-direction:column"></div></div>`,
+'Auntie Mary': `<div style="display:flex;flex-direction:column;padding:10px 0"><div class="bubble-left">Merry Christmas! 🎄<br><span style="font-size:10px;color:#8696a0">25/12/23 ✓✓</span></div><div id="newMsgs" style="display:flex;flex-direction:column"></div></div>`,
+'Spam Group': `<div style="display:flex;flex-direction:column;padding:10px 0"><div style="text-align:center;color:#8696a0;font-size:11px;margin:10px">You left this group</div><div id="newMsgs" style="display:flex;flex-direction:column"></div></div>`,
+'Ex Classmate': `<div style="display:flex;flex-direction:column;padding:10px 0"><div class="bubble-left">Long time! How are you?<br><span style="font-size:10px;color:#8696a0">10/10/23 ✓✓</span></div><div id="newMsgs" style="display:flex;flex-direction:column"></div></div>`
+};
+
+function openChat(name, img){
+currentName=name; currentImg=img;
+q.push(name); upd();
+document.querySelectorAll('#tab-chats .row').forEach(r=>{
+  if(r.getAttribute('onclick') && r.getAttribute('onclick').includes("'"+name+"'")){
+    let type = r.getAttribute('data-type') || '';
+    type = type.replace('unread','').trim();
+    r.setAttribute('data-type', type || 'all');
+    let dot = r.querySelector('.dot');
+    if(dot){ dot.style.display='none'; }
+  }
+});
+setTimeout(()=>{
+q.shift(); upd();
+document.getElementById('coName').innerText=name;
+document.getElementById('coAv').src=`https://i.pravatar.cc/150?img=${img}`;
+let body=document.getElementById('coBody');
+body.innerHTML = chatData[name] || `<div style="padding:10px"><div class="bubble-left">Hello<br><span style="font-size:10px;color:#8696a0">10:00</span></div><div id="newMsgs"></div></div>`;
+document.getElementById('chatOpen').style.display='flex';
+body.scrollTop=body.scrollHeight;
+},200);
+}
+
+function openArchived(){ document.getElementById('archivedScreen').style.display='flex'; }
+function unarchiveAll(){ if(confirm('Unarchive all?')){ document.getElementById('archivedScreen').style.display='none'; } }
+function makeCallFromChat(isVideo){ makeCall(currentName, currentImg, isVideo); }
+function makeCall(name, img, isVideo){
+q.push(name+' Call'); upd();
+document.getElementById('callName').innerText=name;
+document.getElementById('callAv').src=`https://i.pravatar.cc/150?img=${img||'26'}`;
+document.getElementById('callStatus').innerText=isVideo ? 'Video calling...' : 'Voice calling...';
+document.getElementById('callScreen').style.display='flex';
+callSec=0; clearInterval(callInterval);
+callInterval=setInterval(()=>{
+callSec++; let m=String(Math.floor(callSec/60)).padStart(2,'0'); let s=String(callSec%60).padStart(2,'0');
+document.getElementById('callTimer').innerText=`${m}:${s}`;
+if(callSec===1) document.getElementById('callStatus').innerText='Ringing...';
+if(callSec===3) document.getElementById('callStatus').innerText='Connected';
+},1000);
+setTimeout(()=>{q.shift(); upd();},600);
+}
+function endCall(){ clearInterval(callInterval); document.getElementById('callScreen').style.display='none'; document.getElementById('callTimer').innerText='00:00'; }
+function openViewer(title){
+q.push(title); upd();
+document.getElementById('vTitle').innerText=title;
+document.getElementById('vBody').innerHTML=`<div style='background:#1e2a32;padding:16px;border-radius:12px'><h3>${title}</h3><br><button onclick="document.getElementById('viewer').style.display='none'" style='background:#25d366;padding:10px 20px;border:none;border-radius:20px;color:#111b21;font-weight:700'>Close</button></div>`;
+document.getElementById('viewer').style.display='flex';
+setTimeout(()=>{q.shift(); upd();},600);
+}
+function openStatus(name, img){
+q.push(name+' Status'); upd();
+document.getElementById('statusName').innerText=name;
+document.getElementById('statusAv').src=`https://i.pravatar.cc/100?img=${img}`;
+document.getElementById('statusImg').src=`https://i.pravatar.cc/400?img=${img}`;
+document.getElementById('statusText').innerText=name+' status';
+document.getElementById('statusProgress').innerHTML='<div style="flex:1;height:3px;background:#25d366;border-radius:10px"></div>';
+document.getElementById('statusViewer').style.display='flex';
+setTimeout(()=>{q.shift(); upd();},600);
+}
+function openChannel(name, img, following){
+q.push(name); upd();
+document.getElementById('vTitle').innerText=name;
+document.getElementById('vBody').innerHTML=`<div style='background:#1e2a32;padding:16px;border-radius:12px;text-align:center'><img src="https://i.pravatar.cc/150?img=${img}" style="width:80px;height:80px;border-radius:50%"><h3 style="margin-top:10px">${name}</h3></div>`;
+document.getElementById('viewer').style.display='flex';
+setTimeout(()=>{q.shift(); upd();},600);
+}
+function switchCallTab(tab, el){
+document.getElementById('callRecentTab').style.display=tab==='recent' ? 'block' : 'none';
+document.getElementById('callScheduleTab').style.display=tab==='schedule' ? 'block' : 'none';
+}
+function openSheet(id){ document.getElementById('overlay').classList.add('on'); document.getElementById(id).classList.add('on'); }
+function closeSheets(){ document.getElementById('overlay').classList.remove('on'); document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on')); }
+function dial(num){ document.getElementById('keypadInput').value+=num; }
+function callFromKeypad(){ let num=document.getElementById('keypadInput').value; if(!num){alert('Enter number'); return;} makeCall(num, '15', false); closeSheets(); }
+function upd(){ document.getElementById('queue').innerText=`Queue: [${q.join(', ')}] | Size: ${q.length} | FIFO`; let qc=document.getElementById('qCount'); if(qc) qc.innerText=q.length; }
+function createNew(type){
+let name=prompt(`Enter new ${type} name:`); if(!name) return;
+let rnd=Math.floor(Math.random()*70)+1;
+let div=document.createElement('div'); div.className='row'; div.setAttribute('onclick',`openChat('${name}', '${rnd}')`);
+div.innerHTML=`<img class="av" src="https://i.pravatar.cc/150?img=${rnd}"><div style="flex:1"><b>${name}</b><br><span style="font-size:13px;color:#8696a0">New ${type}</span></div><span class="dot">New</span>`;
+document.getElementById('tab-chats').prepend(div);
+}
+function sendMessage(){
+let input=document.getElementById('coInput'); let t=input.value.trim(); if(!t) return;
+document.getElementById('newMsgs').innerHTML+=`<div style="align-self:flex-end;background:#005c4b;padding:8px 10px;border-radius:8px 0 8px 8px;max-width:76%;margin:6px 10px"><span>${t}</span><span style="font-size:10px"> now ✓✓</span></div>`;
+input.value=""; q.push(t); upd(); setTimeout(()=>{q.shift(); upd();},600);
+document.getElementById('coBody').scrollTop=document.getElementById('coBody').scrollHeight;
+}
+</script>
+</body>
+</html>
